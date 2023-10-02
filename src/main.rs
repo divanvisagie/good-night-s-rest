@@ -1,7 +1,13 @@
+use std::{cell::RefCell, rc::Rc};
+
+use components::text::TextInput;
 use eframe::egui;
 use log::{debug, error, log_enabled, info, Level};
+mod components;
 
-struct AppState {}
+struct AppState {
+    url: Rc<RefCell<String>>
+}
 
 impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -9,13 +15,17 @@ impl eframe::App for AppState {
             egui::widgets::global_dark_light_mode_switch(ui);
         });
 
-        egui::CentralPanel::default().show(ctx, |ui| {});
+        egui::CentralPanel::default().show(ctx, |ui| {
+            TextInput::new("URL:".to_string(), self.url.clone()).show(ui);
+        });
     }
 }
 
 impl Default for AppState {
     fn default() -> Self {
-        Self {}
+        Self {
+            url: Rc::new(RefCell::new(String::new()))
+        }
     }
 }
 
