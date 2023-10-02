@@ -1,4 +1,6 @@
 use eframe::egui;
+use log::{debug, error, log_enabled, info, Level};
+
 struct AppState {}
 
 impl eframe::App for AppState {
@@ -18,6 +20,8 @@ impl Default for AppState {
 }
 
 fn main() {
+    env_logger::init();
+    info!(">> start the app");
     let mut window_options = eframe::NativeOptions::default();
     window_options.initial_window_size = Some(egui::Vec2::new(1280., 768.));
     window_options.resizable = true;
@@ -30,6 +34,7 @@ fn main() {
     ) {
         Ok(_) => {}
         Err(e) => {
+            error!("There was an error while trying to initialise the window: {}", e);
         }
     }
 }
