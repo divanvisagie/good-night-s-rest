@@ -17,6 +17,7 @@ impl eframe::App for AppState {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             TextInput::new("URL:".to_string(), self.url.clone()).show(ui);
+            ui.label(&*self.url.borrow());
         });
     }
 }
