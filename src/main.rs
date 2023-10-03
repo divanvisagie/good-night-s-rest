@@ -1,12 +1,22 @@
 use std::{cell::RefCell, rc::Rc};
 
-use components::text::TextInput;
+use components::{multiline_text::MultilineTextInput, text::TextInput};
 use eframe::egui;
-use log::{debug, error, log_enabled, info, Level};
+use log::{info, error};
 mod components;
 
 struct AppState {
-    url: Rc<RefCell<String>>
+    url: Rc<RefCell<String>>,
+    body: Rc<RefCell<String>>,
+    method: Rc<RefCell<Method>>,
+}
+
+#[derive(Debug, PartialEq)]
+enum Method {
+    GET,
+    POST,
+    PUT,
+    DELETE,
 }
 
 impl eframe::App for AppState {
@@ -16,8 +26,20 @@ impl eframe::App for AppState {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
+            egui::ComboBox::from_label("Select one!")
+                .selected_text(format!("{:?}", & *self.method.borrow()))
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(&mut *self.method.borrow_mut(), Method::GET, "GET");
+                    ui.selectable_value(&mut *self.method.borrow_mut(), Method::POST, "POST");
+                    ui.selectable_value(&mut *self.method.borrow_mut(), Method::PUT, "PUT");
+                    ui.selectable_value(&mut *self.method.borrow_mut(), Method::DELETE, "DELETE");
+                });
             TextInput::new("URL:".to_string(), self.url.clone()).show(ui);
             ui.label(&*self.url.borrow());
+            MultilineTextInput::new("body".to_string(), self.body.clone()).show(ui);
+           if  ui.button ("Send") .clicked() {
+               info!("Send button clicked");
+           }
         });
     }
 }
@@ -25,7 +47,9 @@ impl eframe::App for AppState {
 impl Default for AppState {
     fn default() -> Self {
         Self {
-            url: Rc::new(RefCell::new(String::new()))
+            url: Rc::new(RefCell::new(String::new())),
+            body: Rc::new(RefCell::new(String::new())),
+            method: Rc::new(RefCell::new(Method::GET)),
         }
     }
 }
@@ -39,13 +63,16 @@ fn main() {
     window_options.decorated = true;
 
     match eframe::run_native(
-        "Arcanaeum",
+        "Vivus",
         window_options,
         Box::new(|_cc| Box::<AppState>::default()),
     ) {
         Ok(_) => {}
         Err(e) => {
-            error!("There was an error while trying to initialise the window: {}", e);
+            error!(
+                "There was an error while trying to initialise the window: {}",
+                e
+            );
         }
     }
 }
