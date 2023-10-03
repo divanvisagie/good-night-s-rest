@@ -1,6 +1,6 @@
 use crate::method::Method;
 
-pub async fn perform_request(url: &str, method: &Method, body: &str) -> Result<String, reqwest::Error> {
+pub async fn perform_request(url: &str, method: Method, body: &str) -> Result<String, reqwest::Error> {
     let client = reqwest::Client::new();
     let response = match method {
         Method::GET => client.get(url).send().await?,

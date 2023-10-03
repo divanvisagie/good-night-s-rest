@@ -7,6 +7,8 @@ use method::Method;
 
 use std::sync::{Arc, Mutex};
 
+use crate::requests::perform_request;
+
 mod components;
 mod method;
 mod requests;
@@ -15,6 +17,7 @@ struct AppState {
     url: Rc<RefCell<String>>,
     body: Rc<RefCell<String>>,
     method: Rc<RefCell<Method>>,
+    response: String,
     tx: mpsc::Sender<String>,
     rx: Arc<Mutex<mpsc::Receiver<String>>>,
 }
@@ -44,19 +47,45 @@ impl eframe::App for AppState {
             if ui.button("Send").clicked() {
                 info!("Send button clicked");
                 let tx = self.tx.clone();
-                std::thread::spawn(move || {
+                let url = self.url.borrow().clone();
+                let method = self.method.borrow().clone();
+                let body = self.body.borrow().clone();
+
+                tokio::spawn(async move {
                     // Your async or long-running code here
-                    let message = "Task completed".to_string(); // Replace with actual message
-                    tx.send(message).unwrap();
+                    //perform_request(url, method, body)
+                    let result = perform_request(url.as_str(), method, body.as_str()).await;
+
+                    match result {
+                        Ok(response) => {
+                            info!("Response: {}", response);
+                            tx.send(response).unwrap();
+                        }
+                        Err(e) => {
+                            error!("Error: {}", e);
+                        }
+                    }
                 });
             }
+            //rest of app
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.add(
+                    egui::TextEdit::multiline(&mut self.response.clone())
+                        .font(egui::TextStyle::Monospace) // for cursor height
+                        .code_editor()
+                        .desired_rows(10)
+                        .lock_focus(true)
+                        .desired_width(f32::INFINITY)
+                );
+            });
         });
-        
+
         // Poll the status of the async task here and update your UI accordingly
         let rx = self.rx.lock().unwrap();
         if let Ok(message) = rx.try_recv() {
             // Process the message here, update UI, etc.
             info!("Message received: {}", message);
+            self.response = message;
         }
     }
 }
@@ -65,11 +94,12 @@ impl Default for AppState {
     fn default() -> Self {
         let (tx, rx) = mpsc::channel();
         Self {
-            url: Rc::new(RefCell::new(String::new())),
+            url: Rc::new(RefCell::new("https://httpbin.org/json".to_string())),
             body: Rc::new(RefCell::new(String::new())),
             method: Rc::new(RefCell::new(Method::GET)),
             tx,
             rx: Arc::new(Mutex::new(rx)),
+            response: String::new(),
         }
     }
 }
