@@ -20,6 +20,7 @@ struct AppState {
     response: String,
     tx: mpsc::Sender<String>,
     headers: Vec<components::header_builder::Header>,
+    queryparams: Vec<components::header_builder::Header>,
     rx: Arc<Mutex<mpsc::Receiver<String>>>,
 }
 
@@ -41,7 +42,8 @@ impl eframe::App for AppState {
 
             TextInput::new("URL:".to_string(), self.url.clone()).show(ui);
 
-            HeaderBuilder::new(&mut self.headers).show(ui);
+            HeaderBuilder::new("Headers", &mut self.headers).show(ui);
+            HeaderBuilder::new("QueryParams", &mut self.queryparams).show(ui);
 
             MultilineTextInput::new("body".to_string(), self.body.clone()).show(ui);
 
@@ -99,6 +101,7 @@ impl Default for AppState {
             body: Rc::new(RefCell::new(String::new())),
             method: Rc::new(RefCell::new(Method::GET)),
             headers: vec![],
+            queryparams: vec![],
             tx,
             rx: Arc::new(Mutex::new(rx)),
             response: String::new(),

@@ -1,5 +1,4 @@
-
-use eframe::egui::{self, TextEdit, Ui};
+use eframe::egui::{TextEdit, Ui};
 use log::info;
 
 pub struct Header {
@@ -7,16 +6,17 @@ pub struct Header {
     pub value: String,
 }
 pub struct HeaderBuilder <'a> {
+    title: &'a str,
     headers: &'a mut Vec<Header>,
 }
 
 impl <'a> HeaderBuilder <'a> {
-    pub fn new(headers: &'a mut Vec<Header>) -> HeaderBuilder<'a> {
-        HeaderBuilder { headers }
+    pub fn new(title: &'a str, headers: &'a mut Vec<Header>) -> HeaderBuilder<'a> {
+        HeaderBuilder { headers, title }
     }
 
     pub fn show(&mut self, ui: &mut Ui) {
-        ui.label("Headers");
+        ui.label(self.title);
         for header in self.headers.iter_mut() {
             ui.horizontal(|ui| {
                 ui.add(TextEdit::singleline(&mut header.title));
