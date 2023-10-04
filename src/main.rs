@@ -6,7 +6,6 @@ use components::{
 use eframe::egui;
 use log::{error, info};
 use method::Method;
-use reqwest::header::{HeaderMap, HeaderValue};
 
 use std::sync::{Arc, Mutex};
 
@@ -140,7 +139,7 @@ async fn main() {
     window_options.decorated = true;
 
     match eframe::run_native(
-        "Vivus",
+        "Good Night's Rest",
         window_options,
         Box::new(|_cc| Box::<AppState>::default()),
     ) {
