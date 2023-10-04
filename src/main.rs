@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc, sync::mpsc};
 
 use components::{
-    header_builder::KeyValueEntry, multiline_text::MultilineTextInput, text::TextInput,
+    key_value_entry::KeyValueEntry, multiline_text::MultilineTextInput, text::TextInput,
 };
 use eframe::egui;
 use log::{error, info};
@@ -21,8 +21,8 @@ struct AppState {
     method: Rc<RefCell<Method>>,
     response: String,
     tx: mpsc::Sender<String>,
-    headers: Vec<components::header_builder::KeyValuePair>,
-    queryparams: Vec<components::header_builder::KeyValuePair>,
+    headers: Vec<components::key_value_entry::KeyValuePair>,
+    queryparams: Vec<components::key_value_entry::KeyValuePair>,
     rx: Arc<Mutex<mpsc::Receiver<String>>>,
 }
 

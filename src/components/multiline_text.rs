@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use eframe::egui::{self, TextEdit, Ui};
+use eframe::egui::{TextEdit, Ui};
 
 pub struct MultilineTextInput {
     value: Rc<RefCell<String>>,
