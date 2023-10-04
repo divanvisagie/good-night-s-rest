@@ -1,9 +1,12 @@
 use std::{cell::RefCell, rc::Rc, sync::mpsc};
 
-use components::{multiline_text::MultilineTextInput, text::TextInput, header_builder::HeaderBuilder};
+use components::{
+    header_builder::KeyValueEntry, multiline_text::MultilineTextInput, text::TextInput,
+};
 use eframe::egui;
 use log::{error, info};
 use method::Method;
+use reqwest::header::{HeaderMap, HeaderValue};
 
 use std::sync::{Arc, Mutex};
 
@@ -19,8 +22,8 @@ struct AppState {
     method: Rc<RefCell<Method>>,
     response: String,
     tx: mpsc::Sender<String>,
-    headers: Vec<components::header_builder::Header>,
-    queryparams: Vec<components::header_builder::Header>,
+    headers: Vec<components::header_builder::KeyValuePair>,
+    queryparams: Vec<components::header_builder::KeyValuePair>,
     rx: Arc<Mutex<mpsc::Receiver<String>>>,
 }
 
@@ -42,8 +45,8 @@ impl eframe::App for AppState {
 
             TextInput::new("URL:".to_string(), self.url.clone()).show(ui);
 
-            HeaderBuilder::new("Headers", &mut self.headers).show(ui);
-            HeaderBuilder::new("QueryParams", &mut self.queryparams).show(ui);
+            KeyValueEntry::new("Headers", &mut self.headers).show(ui);
+            KeyValueEntry::new("QueryParams", &mut self.queryparams).show(ui);
 
             MultilineTextInput::new("body".to_string(), self.body.clone()).show(ui);
 
@@ -53,11 +56,29 @@ impl eframe::App for AppState {
                 let url = self.url.borrow().clone();
                 let method = self.method.borrow().clone();
                 let body = self.body.borrow().clone();
+                
+                let headers: Vec<(String, String)> = self
+                    .headers
+                    .iter()
+                    .map(|k| (k.key.clone(), k.value.clone()))
+                    .collect();
+                let query_params: Vec<(String, String)> = self
+                    .queryparams
+                    .iter()
+                    .map(|k| (k.key.clone(), k.value.clone()))
+                    .collect();
 
                 tokio::spawn(async move {
                     // Your async or long-running code here
                     //perform_request(url, method, body)
-                    let result = perform_request(url.as_str(), method, body.as_str()).await;
+                    let result = perform_request(
+                        url.as_str(),
+                        method,
+                        body.as_str(),
+                        headers.clone(),
+                        query_params.clone(),
+                    )
+                    .await;
 
                     match result {
                         Ok(response) => {
@@ -78,7 +99,7 @@ impl eframe::App for AppState {
                         .code_editor()
                         .desired_rows(10)
                         .lock_focus(true)
-                        .desired_width(f32::INFINITY)
+                        .desired_width(f32::INFINITY),
                 );
             });
         });
