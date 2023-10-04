@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc, sync::mpsc};
 
-use components::{multiline_text::MultilineTextInput, text::TextInput};
+use components::{multiline_text::MultilineTextInput, text::TextInput, header_builder::HeaderBuilder};
 use eframe::egui;
 use log::{error, info};
 use method::Method;
@@ -19,6 +19,7 @@ struct AppState {
     method: Rc<RefCell<Method>>,
     response: String,
     tx: mpsc::Sender<String>,
+    headers: Vec<components::header_builder::Header>,
     rx: Arc<Mutex<mpsc::Receiver<String>>>,
 }
 
@@ -40,7 +41,7 @@ impl eframe::App for AppState {
 
             TextInput::new("URL:".to_string(), self.url.clone()).show(ui);
 
-            ui.label(&*self.url.borrow());
+            HeaderBuilder::new(&mut self.headers).show(ui);
 
             MultilineTextInput::new("body".to_string(), self.body.clone()).show(ui);
 
@@ -97,6 +98,7 @@ impl Default for AppState {
             url: Rc::new(RefCell::new("https://httpbin.org/json".to_string())),
             body: Rc::new(RefCell::new(String::new())),
             method: Rc::new(RefCell::new(Method::GET)),
+            headers: vec![],
             tx,
             rx: Arc::new(Mutex::new(rx)),
             response: String::new(),
