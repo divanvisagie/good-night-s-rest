@@ -37,7 +37,7 @@ impl eframe::App for AppState {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            EditView::new(&mut self.request, self.response.clone()).show(ui);
+            EditView::new(&mut self.collection[self.selected_index], self.response.clone()).show(ui);
 
             if ui.button("Send").clicked() {
                 info!("Send button clicked");
