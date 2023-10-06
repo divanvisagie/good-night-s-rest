@@ -9,7 +9,6 @@ use std::sync::{mpsc, Arc};
 pub struct AppState {
     selected_index: usize,
     collection: Vec<Request>,
-    request: Request,
     response: String,
     tx: mpsc::Sender<String>,
     rx: Arc<Mutex<mpsc::Receiver<String>>>,
@@ -20,13 +19,15 @@ impl eframe::App for AppState {
         egui::SidePanel::left("side-panel").show(ctx, |ui| {
             egui::widgets::global_dark_light_mode_switch(ui);
             egui::ScrollArea::vertical().show(ui, |ui| {
+                let mut current = self.collection[self.selected_index].clone();
                 for (index, request) in self.collection.iter_mut().enumerate() {
                     if ui
-                        .selectable_value(&mut self.request, request.clone(), request.url.clone())
+                        .selectable_value(&mut current, request.clone(), request.url.clone())
                         .clicked()
                     {
                         info!("Request selected: {}", request.url);
                         self.selected_index = index;
+                        self.response = String::new();
                     }
                 }
                 if ui.button("Add").clicked() {
@@ -43,7 +44,7 @@ impl eframe::App for AppState {
                 info!("Send button clicked");
                 let tx = self.tx.clone();
 
-                let req = self.request.clone();
+                let req = self.collection[self.selected_index].clone();
                 tokio::spawn(async move {
                     // Your async or long-running code here
                     //perform_request(url, method, body)
@@ -76,7 +77,6 @@ impl Default for AppState {
     fn default() -> Self {
         let (tx, rx) = mpsc::channel();
         Self {
-            request: Request::new(),
             response: String::new(),
             selected_index: 0,
             collection: vec![Request::new()],
