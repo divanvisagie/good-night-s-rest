@@ -2,13 +2,13 @@ use std::{cell::RefCell, rc::Rc};
 
 use eframe::egui::{TextEdit, Ui};
 
-pub struct TextInput {
-    value: Rc<RefCell<String>>,
-    title: String,
+pub struct TextInput <'a> {
+    value: &'a mut String,
+    title: &'a str,
 }
 
-impl TextInput {
-    pub fn new(title: String, value: Rc<RefCell<String>>) -> TextInput {
+impl <'a> TextInput <'a> {
+    pub fn new(title: &'a str, value: &'a mut String) -> TextInput <'a> {
         TextInput {
             title,
             value
@@ -17,8 +17,8 @@ impl TextInput {
 
     pub fn show(&mut self, ui: &mut Ui) {
         ui.vertical(|ui| {
-            ui.label(&self.title);
-            ui.add(TextEdit::singleline(&mut *self.value.borrow_mut()));
+            ui.label(self.title);
+            ui.add(TextEdit::singleline(self.value));
         });
     }
 }

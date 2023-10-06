@@ -1,14 +1,12 @@
-use std::{cell::RefCell, rc::Rc};
-
 use eframe::egui::{TextEdit, Ui};
 
-pub struct MultilineTextInput {
-    value: Rc<RefCell<String>>,
-    title: String,
+pub struct MultilineTextInput <'a>{
+    value: &'a mut String,
+    title: &'a str,
 }
 
-impl MultilineTextInput {
-    pub fn new(title: String, value: Rc<RefCell<String>>) -> MultilineTextInput {
+impl <'a> MultilineTextInput <'a> {
+    pub fn new(title: &'a str, value: &'a mut String) -> MultilineTextInput <'a>{
         MultilineTextInput {
             title,
             value
@@ -17,8 +15,8 @@ impl MultilineTextInput {
 
     pub fn show(&mut self, ui: &mut Ui) {
         ui.vertical(|ui| {
-            ui.label(&self.title);
-            ui.add(TextEdit::multiline(&mut *self.value.borrow_mut()));
+            ui.label(self.title);
+            ui.add(TextEdit::multiline(self.value));
         });
     }
 }

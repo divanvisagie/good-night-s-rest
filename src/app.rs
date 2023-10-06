@@ -15,7 +15,7 @@ use std::{
 
 pub struct AppState {
     url: Rc<RefCell<String>>,
-    body: Rc<RefCell<String>>,
+    body: String,
     method: Rc<RefCell<Method>>,
     response: String,
     tx: mpsc::Sender<String>,
@@ -45,14 +45,14 @@ impl eframe::App for AppState {
             KeyValueEntry::new("Headers", &mut self.headers).show(ui);
             KeyValueEntry::new("QueryParams", &mut self.queryparams).show(ui);
 
-            MultilineTextInput::new("body".to_string(), self.body.clone()).show(ui);
+            MultilineTextInput::new("body", &mut self.body).show(ui);
 
             if ui.button("Send").clicked() {
                 info!("Send button clicked");
                 let tx = self.tx.clone();
                 let url = self.url.borrow().clone();
                 let method = self.method.borrow().clone();
-                let body = self.body.borrow().clone();
+                let body = self.body.clone();
 
                 let headers: Vec<(String, String)> = self
                     .headers
@@ -116,7 +116,7 @@ impl Default for AppState {
         let (tx, rx) = mpsc::channel();
         Self {
             url: Rc::new(RefCell::new("https://httpbin.org/json".to_string())),
-            body: Rc::new(RefCell::new(String::new())),
+            body: String::new(),
             method: Rc::new(RefCell::new(Method::GET)),
             headers: vec![],
             queryparams: vec![],
