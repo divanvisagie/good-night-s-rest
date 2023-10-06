@@ -12,7 +12,7 @@ Are you tired of open-source projects that rug pull and suddenly try to become
 a cloud service even though they're basically a generic wrapper around the unit 
 tests you write every day?
 
-Are you tired of launching an entire browser engin/memory load test for every 
+Are you tired of launching an entire browser engine/memory load test for every 
 application on your desktop?
 
 ## The Solution
