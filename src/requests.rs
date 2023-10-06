@@ -4,16 +4,20 @@ use reqwest::header::{HeaderMap, HeaderName};
 
 use crate::method::Method;
 
+pub struct Request {
+    pub url: String,
+    pub body: String,
+    pub method: Method,
+    pub headers: Vec<(String, String)>,
+    pub query_params: Vec<(String, String)>,
+}
+
 pub async fn perform_request(
-    url: &str,
-    method: Method,
-    body: &str,
-    headers: Vec<(String, String)>,
-    query_params: Vec<(String, String)>,
+    req: Request
 ) -> Result<String, reqwest::Error> {
     let client = reqwest::Client::new();
 
-    let headers = headers
+    let headers = req.headers
         .iter()
         .fold(HeaderMap::new(), |mut acc, (k, v)| {
             let header_name = HeaderName::from_str(k).unwrap();
@@ -21,18 +25,18 @@ pub async fn perform_request(
             acc
         });
 
-    let response = match method {
+    let response = match req.method {
         Method::GET => {
             client
-                .get(url)
+                .get(req.url)
                 .headers(headers)
-                .query(&query_params)
+                .query(&req.query_params)
                 .send()
                 .await?
         }
-        Method::POST => client.post(url).body(body.to_string()).send().await?,
-        Method::PUT => client.put(url).body(body.to_string()).send().await?,
-        Method::DELETE => client.delete(url).body(body.to_string()).send().await?,
+        Method::POST => client.post(req.url).body(req.body.to_string()).send().await?,
+        Method::PUT => client.put(req.url).body(req.body.to_string()).send().await?,
+        Method::DELETE => client.delete(req.url).body(req.body.to_string()).send().await?,
     };
     Ok(response.text().await?)
 }

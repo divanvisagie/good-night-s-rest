@@ -1,11 +1,11 @@
 use eframe::egui;
-use log::{info, error};
+use log::{error, info};
 
-use crate::components::key_value_entry::{KeyValuePair, KeyValueEntry};
+use crate::components::key_value_entry::{KeyValueEntry, KeyValuePair};
 use crate::components::multiline_text::MultilineTextInput;
 use crate::components::text::TextInput;
 use crate::method::Method;
-use crate::requests::perform_request;
+use crate::requests::{perform_request, Request};
 use std::sync::Mutex;
 use std::{
     cell::RefCell,
@@ -68,14 +68,14 @@ impl eframe::App for AppState {
                 tokio::spawn(async move {
                     // Your async or long-running code here
                     //perform_request(url, method, body)
-                    let result = perform_request(
-                        url.as_str(),
+                    let req = Request {
+                        url,
+                        body,
                         method,
-                        body.as_str(),
-                        headers.clone(),
-                        query_params.clone(),
-                    )
-                    .await;
+                        headers,
+                        query_params,
+                    };
+                    let result = perform_request(req).await;
 
                     match result {
                         Ok(response) => {
