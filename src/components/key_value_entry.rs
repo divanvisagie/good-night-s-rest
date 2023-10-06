@@ -8,28 +8,27 @@ pub struct KeyValuePair {
 }
 pub struct KeyValueEntry <'a> {
     title: &'a str,
-    headers: &'a mut Vec<KeyValuePair>,
+    pairs: &'a mut Vec<(String, String)>,
 }
 
 impl <'a> KeyValueEntry <'a> {
-    pub fn new(title: &'a str, headers: &'a mut Vec<KeyValuePair>) -> KeyValueEntry<'a> {
-        KeyValueEntry { headers, title }
+    pub fn new(title: &'a str, pairs: &'a mut Vec<(String, String)>) -> KeyValueEntry<'a> {
+        KeyValueEntry { pairs, title }
     }
 
     pub fn show(&mut self, ui: &mut Ui) {
         ui.label(self.title);
-        for header in self.headers.iter_mut() {
+        for header in self.pairs.iter_mut() {
             ui.horizontal(|ui| {
-                ui.add(TextEdit::singleline(&mut header.key));
-                ui.add(TextEdit::singleline(&mut header.value));
+                ui.add(TextEdit::singleline(&mut header.0));
+                ui.add(TextEdit::singleline(&mut header.1));
             });
         }
         if ui.button("Add").clicked() {
             info!("Add button clicked");
-            self.headers.push(KeyValuePair {
-                key: "".to_string(),
-                value: "".to_string(),
-            });
+            self.pairs.push(
+                (String::from(""), String::from(""))
+            );
         }
     }
 }

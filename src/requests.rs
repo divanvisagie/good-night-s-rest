@@ -4,12 +4,25 @@ use reqwest::header::{HeaderMap, HeaderName};
 
 use crate::method::Method;
 
+#[derive(Clone)]
 pub struct Request {
     pub url: String,
     pub body: String,
     pub method: Method,
     pub headers: Vec<(String, String)>,
     pub query_params: Vec<(String, String)>,
+}
+
+impl Request {
+    pub fn new() -> Request {
+        Request {
+            url: "https://httpbin.org/get".to_string(),
+            body: "".to_string(),
+            method: Method::GET,
+            headers: vec![],
+            query_params: vec![],
+        }
+    }
 }
 
 pub async fn perform_request(
