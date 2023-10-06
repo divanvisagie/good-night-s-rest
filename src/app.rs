@@ -21,8 +21,9 @@ impl eframe::App for AppState {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 let mut current = self.collection[self.selected_index].clone();
                 for (index, request) in self.collection.iter_mut().enumerate() {
+                    let text = format!("{} {}", request.method, request.url);
                     if ui
-                        .selectable_value(&mut current, request.clone(), request.url.clone())
+                        .selectable_value(&mut current, request.clone(), text)
                         .clicked()
                     {
                         info!("Request selected: {}", request.url);
