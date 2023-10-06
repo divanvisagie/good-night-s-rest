@@ -24,6 +24,8 @@ And yes, it's written in Rust, because why rewrite it in a weekend when you
 can "Rewrite it in Rust" and have a ton of compile-time errors. Hey it was either
 that or rewrite it in C and have me break your computer with pointer arithmetic.
 
+![Good Night's Rest](docs/main_screen.png)
+
 ## Project Principles
 ### 1. The only requests are your requests
 The only network requests an app like this should be making are the ones in your 
@@ -47,7 +49,6 @@ their names. That way you don't have to do weird gymnastics when handing a colle
 Seriously who thought that was a good idea, if ever created such a thing, it would keep me 
 up at night.
 
-![Good Night's Rest](docs/main_screen.png)
 
 ## Planned features
  - [x] Add requests to a collection 
