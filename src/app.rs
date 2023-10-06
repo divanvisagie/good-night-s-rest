@@ -7,9 +7,11 @@ use std::sync::Mutex;
 use std::sync::{mpsc, Arc};
 
 pub struct AppState {
+    selected_index: usize,
+    collection: Vec<Request>,
+    request: Request,
     response: String,
     tx: mpsc::Sender<String>,
-    request: Request,
     rx: Arc<Mutex<mpsc::Receiver<String>>>,
 }
 
@@ -17,6 +19,21 @@ impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::SidePanel::left("side-panel").show(ctx, |ui| {
             egui::widgets::global_dark_light_mode_switch(ui);
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                for (index, request) in self.collection.iter_mut().enumerate() {
+                    if ui
+                        .selectable_value(&mut self.request, request.clone(), request.url.clone())
+                        .clicked()
+                    {
+                        info!("Request selected: {}", request.url);
+                        self.selected_index = index;
+                    }
+                }
+                if ui.button("Add").clicked() {
+                    info!("Add button clicked");
+                    self.collection.push(Request::new());
+                }
+            });
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -61,6 +78,8 @@ impl Default for AppState {
         Self {
             request: Request::new(),
             response: String::new(),
+            selected_index: 0,
+            collection: vec![Request::new()],
             tx,
             rx: Arc::new(Mutex::new(rx)),
         }

@@ -4,7 +4,7 @@ use reqwest::header::{HeaderMap, HeaderName};
 
 use crate::method::Method;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Request {
     pub url: String,
     pub body: String,
