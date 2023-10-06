@@ -14,7 +14,7 @@ use std::{
 };
 
 pub struct AppState {
-    url: Rc<RefCell<String>>,
+    url: String,
     body: String,
     method: Rc<RefCell<Method>>,
     response: String,
@@ -31,7 +31,7 @@ impl eframe::App for AppState {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            egui::ComboBox::from_label("Select one!")
+            egui::ComboBox::from_label("Method")
                 .selected_text(format!("{:?}", &*self.method.borrow()))
                 .show_ui(ui, |ui| {
                     ui.selectable_value(&mut *self.method.borrow_mut(), Method::GET, "GET");
@@ -40,7 +40,7 @@ impl eframe::App for AppState {
                     ui.selectable_value(&mut *self.method.borrow_mut(), Method::DELETE, "DELETE");
                 });
 
-            TextInput::new("URL:".to_string(), self.url.clone()).show(ui);
+            TextInput::new("URL:", &mut self.url).show(ui);
 
             KeyValueEntry::new("Headers", &mut self.headers).show(ui);
             KeyValueEntry::new("QueryParams", &mut self.queryparams).show(ui);
@@ -50,7 +50,7 @@ impl eframe::App for AppState {
             if ui.button("Send").clicked() {
                 info!("Send button clicked");
                 let tx = self.tx.clone();
-                let url = self.url.borrow().clone();
+                let url = self.url.clone();
                 let method = self.method.borrow().clone();
                 let body = self.body.clone();
 
@@ -115,7 +115,7 @@ impl Default for AppState {
     fn default() -> Self {
         let (tx, rx) = mpsc::channel();
         Self {
-            url: Rc::new(RefCell::new("https://httpbin.org/json".to_string())),
+            url: "https://httpbin.org/json".to_string(),
             body: String::new(),
             method: Rc::new(RefCell::new(Method::GET)),
             headers: vec![],
