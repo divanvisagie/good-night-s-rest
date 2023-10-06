@@ -46,7 +46,7 @@ all collections should be exportable as ready to use OpenAPI files.
 ### 4. Secure by default
 Exports should NEVER contain the contents of the environment variables, only 
 their names. That way you don't have to do weird gymnastics when handing a collection to a colleague.
-Seriously who thought that was a good idea, if ever created such a thing, it would keep me 
+Seriously who thought that was a good idea? If ever created such a thing, it would keep me 
 up at night.
 
 
