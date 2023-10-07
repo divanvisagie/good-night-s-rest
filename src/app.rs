@@ -118,8 +118,12 @@ impl eframe::App for AppState {
                 }
             });
         });
-        egui::SidePanel::left("second-side-panel").show(ctx, |ui| {
-            ui.heading("Requests");
+        egui::SidePanel::left("request-side-panel").show(ctx, |ui| {
+            let heading = format!(
+                "{} Requests",
+                self.collection_list[self.selected_collection_index].name,
+            );
+            ui.heading(heading);
             egui::ScrollArea::vertical().show(ui, |ui| {
                 let mut current = self.collection[self.selected_request_index].clone();
                 for (index, request) in self.collection.iter_mut().enumerate() {
