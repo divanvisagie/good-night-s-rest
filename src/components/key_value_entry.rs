@@ -23,6 +23,7 @@ impl <'a> KeyValueEntry <'a> {
                 ui.add(TextEdit::singleline(&mut header.0));
                 ui.add(TextEdit::singleline(&mut header.1));
             });
+            
         }
         if ui.button("Add").clicked() {
             info!("Add button clicked");

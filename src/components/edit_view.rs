@@ -23,7 +23,7 @@ impl<'a> EditView<'a> {
     pub fn show(&mut self, ui: &mut Ui) {
         ui.vertical(|ui| {
             ui.horizontal(|ui| {
-                egui::ComboBox::from_label("Method")
+                egui::ComboBox::new("method", "")
                     .selected_text(format!("{:?}", self.request.method))
                     .show_ui(ui, |ui| {
                         ui.selectable_value(&mut self.request.method, Method::GET, "GET");
