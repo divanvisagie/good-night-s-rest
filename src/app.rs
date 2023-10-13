@@ -119,8 +119,7 @@ impl eframe::App for AppState {
             });
         });
         egui::SidePanel::left("request-side-panel").show(ctx, |ui| {
-            ui.text_edit_singleline(&mut self.collection_list[self.selected_collection_index].name)
-                .text_style(egui::TextStyle::Heading);
+            ui.text_edit_singleline(&mut self.collection_list[self.selected_collection_index].name);
             egui::ScrollArea::vertical().show(ui, |ui| {
                 let mut current = self.collection[self.selected_request_index].clone();
                 for (index, request) in self.collection.iter_mut().enumerate() {
