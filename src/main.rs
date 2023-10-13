@@ -17,7 +17,7 @@ async fn main() {
     window_options.decorated = true;
 
     match eframe::run_native(
-        "Good Night's Rest",
+        "🌙 Good Night's Rest 🌙",
         window_options,
         Box::new(|_cc| Box::<AppState>::default()),
     ) {
