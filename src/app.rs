@@ -89,7 +89,7 @@ impl eframe::App for AppState {
                         .map(|c| c.name.clone())
                         .collect(),
                     |ui, i, item| {
-                        let text = format!("{} {}", i, item);
+                        let text = format!("{}", item);
                         if create_clickable_row(ui, text.clone(), 45.0) {
                             println!("Clicked row: {}", text);
                             //save the state of the current collection
@@ -119,11 +119,8 @@ impl eframe::App for AppState {
             });
         });
         egui::SidePanel::left("request-side-panel").show(ctx, |ui| {
-            let heading = format!(
-                "{} Requests",
-                self.collection_list[self.selected_collection_index].name,
-            );
-            ui.heading(heading);
+            ui.text_edit_singleline(&mut self.collection_list[self.selected_collection_index].name)
+                .text_style(egui::TextStyle::Heading);
             egui::ScrollArea::vertical().show(ui, |ui| {
                 let mut current = self.collection[self.selected_request_index].clone();
                 for (index, request) in self.collection.iter_mut().enumerate() {
