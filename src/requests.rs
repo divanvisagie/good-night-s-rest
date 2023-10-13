@@ -1,10 +1,11 @@
 use std::str::FromStr;
 
 use reqwest::header::{HeaderMap, HeaderName};
+use serde::{Deserialize, Serialize};
 
 use crate::method::Method;
 
-#[derive(Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct Request {
     pub url: String,
     pub body: String,
