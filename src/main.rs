@@ -6,6 +6,7 @@ mod components;
 mod method;
 mod requests;
 mod app;
+mod collection;
 
 #[tokio::main]
 async fn main() {

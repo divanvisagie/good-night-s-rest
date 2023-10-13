@@ -3,18 +3,13 @@ use eframe::emath::Align2;
 use eframe::epaint::FontId;
 use log::{error, info};
 
+use crate::collection::{CollectionItem, Collection};
 use crate::components::edit_view::EditView;
 use crate::components::select_list::SelectList;
 use crate::requests::{perform_request, Request};
 use std::sync::Mutex;
 use std::sync::{mpsc, Arc};
 
-type Collection = Vec<Request>;
-
-struct CollectionItem {
-    name: String,
-    collection: Collection,
-}
 
 pub struct AppState {
     selected_request_index: usize,
