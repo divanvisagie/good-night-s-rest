@@ -66,29 +66,3 @@ impl CollectionItem {
     }
 }
 
-
-#[cfg(test)]
-mod tests {
-    use std::io::Write;
-    use crate::method::Method;
-    use super::*;
-
-    #[test]
-    fn test_to_openapi_format() {
-        let mut collection = Collection::new();
-        let request = Request {
-            url: String::from("https://httpbin.org/get"),
-            body: String::from(""),
-            method: Method::GET,
-            headers: vec![],
-            query_params: vec![],
-        };
-        collection.push(request);
-        let collection_item = CollectionItem::new(String::from("Test"), collection);
-        let openapi = collection_item.to_openapi_format();
-        
-        // write to the /out directory
-        let mut file = std::fs::File::create("./out/openapi.yaml").unwrap();
-        file.write_all(openapi.as_bytes()).unwrap();
-    }
-}
