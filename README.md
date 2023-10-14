@@ -53,9 +53,9 @@ up at night.
 ## Planned features
  - [x] Add requests to a collection 
  - [x] Edit and execute requests
- - [ ] Handle multiple collections
- - [ ] Save collections to a Swagger/OpenAPI file
+ - [x] Handle multiple collections
  - [ ] Load collections from a Swagger/OpenAPI file 
+ - [ ] Save collections to a Swagger/OpenAPI file
  - [ ] Import from curl
  - [ ] Export to curl
  - [ ] Handle custom variables in requests
