@@ -7,6 +7,7 @@ mod method;
 mod requests;
 mod app;
 mod collection;
+mod openapi;
 
 #[tokio::main]
 async fn main() {
