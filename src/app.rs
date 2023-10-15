@@ -3,7 +3,7 @@ use eframe::emath::Align2;
 use eframe::epaint::FontId;
 use log::{error, info};
 
-use crate::collection::{CollectionItem, Collection};
+use crate::collection::CollectionItem;
 use crate::components::edit_view::EditView;
 use crate::components::select_list::SelectList;
 use crate::requests::{perform_request, Request};
@@ -14,7 +14,7 @@ use std::sync::{mpsc, Arc};
 pub struct AppState {
     selected_request_index: usize,
     selected_collection_index: usize,
-    collection: Collection,
+    requests: Vec<Request>,
     collection_list: Vec<CollectionItem>,
     response: String,
     tx: mpsc::Sender<String>,
@@ -89,12 +89,12 @@ impl eframe::App for AppState {
                             println!("Clicked row: {}", text);
                             //save the state of the current collection
                             self.collection_list[self.selected_collection_index].collection =
-                                self.collection.clone();
+                                self.requests.clone();
 
                             // select new collection
                             self.selected_request_index = 0;
                             self.selected_collection_index = i;
-                            self.collection = self.collection_list[i].collection.clone();
+                            self.requests = self.collection_list[i].collection.clone();
                         }
                     },
                 )
@@ -107,7 +107,7 @@ impl eframe::App for AppState {
                         collection: collection.clone(),
                     };
                     self.collection_list.push(collection_item);
-                    self.collection = collection;
+                    self.requests = collection;
                     self.selected_request_index = 0;
                     self.response = String::new();
                 }
@@ -116,8 +116,8 @@ impl eframe::App for AppState {
         egui::SidePanel::left("request-side-panel").show(ctx, |ui| {
             ui.text_edit_singleline(&mut self.collection_list[self.selected_collection_index].name);
             egui::ScrollArea::vertical().show(ui, |ui| {
-                let mut current = self.collection[self.selected_request_index].clone();
-                for (index, request) in self.collection.iter_mut().enumerate() {
+                let mut current = self.requests[self.selected_request_index].clone();
+                for (index, request) in self.requests.iter_mut().enumerate() {
                     let text = format!("{} {}", request.method, request.url);
                     if ui
                         .selectable_value(&mut current, request.clone(), text)
@@ -130,7 +130,7 @@ impl eframe::App for AppState {
                 }
                 if ui.button("Add").clicked() {
                     info!("Add button clicked");
-                    self.collection.push(Request::new());
+                    self.requests.push(Request::new());
                 }
             });
             ui.set_min_width(200.0);
@@ -138,7 +138,7 @@ impl eframe::App for AppState {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             EditView::new(
-                &mut self.collection[self.selected_request_index],
+                &mut self.requests[self.selected_request_index],
                 self.response.clone(),
             )
             .show(ui);
@@ -147,7 +147,7 @@ impl eframe::App for AppState {
                 info!("Send button clicked");
                 let tx = self.tx.clone();
 
-                let req = self.collection[self.selected_request_index].clone();
+                let req = self.requests[self.selected_request_index].clone();
                 tokio::spawn(async move {
                     // Your async or long-running code here
                     // perform_request(url, method, body)
@@ -186,7 +186,7 @@ impl Default for AppState {
         };
         Self {
             response: String::new(),
-            collection: collection.clone(),
+            requests: collection.clone(),
             collection_list: vec![collection_item],
             selected_request_index: 0,
             selected_collection_index: 0,

@@ -4,11 +4,11 @@ use serde::{Serialize, Deserialize};
 
 use crate::requests::Request;
 
-pub type Collection = Vec<Request>;
+// pub type Collection = Vec<Request>;
 
 pub struct CollectionItem {
     pub name: String,
-    pub collection: Collection,
+    pub collection: Vec<Request>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -46,7 +46,7 @@ impl OpenAPI {
 }
 
 impl CollectionItem {
-    pub fn new(name: String, collection: Collection) -> CollectionItem {
+    pub fn new(name: String, collection: Vec<Request>) -> CollectionItem {
         CollectionItem {
             name,
             collection,

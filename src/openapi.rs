@@ -80,6 +80,7 @@ mod tests {
                 assert_eq!(key, "/pet");
                 assert_eq!(value.len(), 2);
                 assert_eq!(value.get("put").unwrap().responses.len(), 4);
+                assert_eq!(value.get("put").unwrap().requestBody.is_some(), true);
             }
             None => {
                 panic!("Key not found");
