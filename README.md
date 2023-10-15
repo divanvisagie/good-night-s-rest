@@ -54,9 +54,9 @@ up at night.
  - [x] Add requests to a collection 
  - [x] Edit and execute requests
  - [x] Handle multiple collections
- - [ ] Load collections from a Swagger/OpenAPI file 
+ - [x] Load collections from a Swagger/OpenAPI file 
+ - [ ] Handle custom variables in requests
  - [ ] Save collections to a Swagger/OpenAPI file
  - [ ] Import from curl
  - [ ] Export to curl
- - [ ] Handle custom variables in requests
  - [ ] Secure variables
