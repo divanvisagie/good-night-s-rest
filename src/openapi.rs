@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
-struct Info {
-    title: String,
+pub struct Info {
+    pub title: String,
 }
 impl Info {
     pub fn new(title: String) -> Info {
@@ -13,23 +13,23 @@ impl Info {
 }
 
 #[derive(Serialize, Deserialize)]
-struct CodeResponseObject {
-    description: String,
+pub struct CodeResponseObject {
+   pub description: String,
 }
 
 #[derive(Serialize, Deserialize)]
-struct RequestBodyObject { 
-    description: Option<String>,
+pub struct RequestBodyObject { 
+    pub description: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
-struct MethodType {
-   requestBody: Option<RequestBodyObject>,
-   responses: HashMap<String, CodeResponseObject>,
+pub struct MethodType {
+   pub requestBody: Option<RequestBodyObject>,
+   pub responses: HashMap<String, CodeResponseObject>,
 }
 
 #[derive(Serialize, Deserialize)]
-struct OpenAPI {
+pub struct OpenAPI {
     pub openapi: String,
     pub info: Info,
     pub paths: HashMap<String, HashMap<String, MethodType>>,
@@ -44,7 +44,7 @@ impl OpenAPI {
         }
     }
 
-    fn load_from_yaml_file(path: String) -> OpenAPI {
+    pub fn load_from_yaml_file(path: String) -> OpenAPI {
         // load the file first
         let file = std::fs::File::open(path).unwrap();
         let reader = std::io::BufReader::new(file);
@@ -61,8 +61,7 @@ impl OpenAPI {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::method::Method;
+    use crate::{method::Method, openapi::OpenAPI};
     use std::io::Write;
 
     #[test]

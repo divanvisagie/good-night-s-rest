@@ -3,9 +3,10 @@ use eframe::emath::Align2;
 use eframe::epaint::FontId;
 use log::{error, info};
 
-use crate::collection::CollectionItem;
+use crate::collection::Collection;
 use crate::components::edit_view::EditView;
 use crate::components::select_list::SelectList;
+use crate::openapi::OpenAPI;
 use crate::requests::{perform_request, Request};
 use std::sync::Mutex;
 use std::sync::{mpsc, Arc};
@@ -15,7 +16,7 @@ pub struct AppState {
     selected_request_index: usize,
     selected_collection_index: usize,
     requests: Vec<Request>,
-    collection_list: Vec<CollectionItem>,
+    collection_list: Vec<Collection>,
     response: String,
     tx: mpsc::Sender<String>,
     rx: Arc<Mutex<mpsc::Receiver<String>>>,
@@ -67,8 +68,7 @@ impl eframe::App for AppState {
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 // spread out as much as possible
-                ui.style_mut().spacing.item_spacing = egui::vec2(0.0, 0.0);
-                ui.heading(r#"🌙 Good Night's Rest 🌙"#);
+                // ui.heading(r#"🌙 Good Night's Rest 🌙"#);
                 egui::widgets::global_dark_light_mode_switch(ui);
             });
         });
@@ -101,15 +101,18 @@ impl eframe::App for AppState {
                 .show(ui);
                 if ui.button("Add").clicked() {
                     info!("Add button clicked");
+                    // create a new collection
                     let collection = vec![Request::new()];
-                    let collection_item = CollectionItem {
+                    let collection_item = Collection {
                         name: format!("Collection {}", self.collection_list.len() + 1),
                         collection: collection.clone(),
                     };
                     self.collection_list.push(collection_item);
-                    self.requests = collection;
-                    self.selected_request_index = 0;
-                    self.response = String::new();
+
+                    // select it
+                    // self.requests = collection;
+                    // self.selected_request_index = 0;
+                    // self.response = String::new();
                 }
             });
         });
@@ -179,15 +182,18 @@ impl eframe::App for AppState {
 impl Default for AppState {
     fn default() -> Self {
         let (tx, rx) = mpsc::channel();
-        let collection = vec![Request::new()];
-        let collection_item = CollectionItem {
-            name: "Collection 1".to_string(),
-            collection: collection.clone(),
-        };
+
+        let path = String::from("./test_data/test.yaml");
+        let openapi = OpenAPI::load_from_yaml_file(path);
+        let collection = Collection::from_openapi_format(openapi);
+        // let collection_item = Collection {
+        //     name: "Collection 1".to_string(),
+        //     collection: collection.clone(),
+        // };
         Self {
             response: String::new(),
-            requests: collection.clone(),
-            collection_list: vec![collection_item],
+            requests: collection.collection.clone(),
+            collection_list: vec![collection],
             selected_request_index: 0,
             selected_collection_index: 0,
             tx,
