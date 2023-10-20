@@ -8,9 +8,9 @@ use crate::components::edit_view::EditView;
 use crate::components::select_list::SelectList;
 use crate::openapi::OpenAPI;
 use crate::requests::{perform_request, Request};
+use std::path::PathBuf;
 use std::sync::Mutex;
 use std::sync::{mpsc, Arc};
-
 
 pub struct AppState {
     selected_request_index: usize,
@@ -63,12 +63,36 @@ fn create_clickable_row(ui: &mut egui::Ui, value_entry: String, row_height: f32)
 
     is_clicked
 }
+
+fn handle_import_selected_file(path: Option<PathBuf>) -> Option<Collection> {
+    match path {
+        Some(path_buf) => {
+            let file_path = String::from(path_buf.to_str().unwrap());
+            log::info!("Selected File: {}", file_path);
+            let openapi = OpenAPI::load_from_yaml_file(file_path);
+            let collection = Collection::from_openapi_format(openapi);
+            Some(collection)
+        }
+        None => {
+            log::error!("No file selected");
+            None
+        }
+    }
+}
+
 impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
-                // spread out as much as possible
-                // ui.heading(r#"🌙 Good Night's Rest 🌙"#);
+                if ui.button("Import").clicked() {
+                    let res = rfd::FileDialog::new().set_directory("~")
+                        .add_filter("YAML", &["yaml", "yml"])
+                        .pick_file();
+                    let col = handle_import_selected_file(res);
+                    if let Some(collection) = col {
+                        self.collection_list.push(collection);
+                    }
+                }
                 egui::widgets::global_dark_light_mode_switch(ui);
             });
         });
