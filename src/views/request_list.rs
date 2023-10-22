@@ -10,6 +10,9 @@ use log::info;
 use crate::collection::Collection;
 use crate::{components::dropdown_selector::DropdownSelector, requests::Request};
 
+const HIGHLIGHT_COLOUR: egui::Color32 = egui::Color32::from_gray(220);
+const BORDER_COLOUR: egui::Color32 = egui::Color32::from_gray(180);
+
 pub struct RequestListView<'a> {
     pub collection_name: &'a mut String,
     pub requests: &'a mut Vec<Request>,
@@ -40,20 +43,16 @@ impl<'a> RequestListView<'a> {
         );
 
         egui::ScrollArea::vertical().show(ui, |ui| {
-            let mut current = self.requests[self.selected_request_index.clone()].clone();
             let mut selected_index: Option<usize> = None;
             for (index, request) in self.requests.iter_mut().enumerate() {
                 let text = format!("{} {}", request.method, request.url);
-                if ui
-                    .selectable_value(&mut current, request.clone(), text)
-                    .clicked()
-                {
-                    info!("Request selected: {}", request.url);
+                if create_clickable_row(ui, text.clone(), 45.0) {
+                    info!("Clicked Reqeust in row: {}", text);
                     selected_index = Some(index);
                 }
             }
             if let Some(index) = selected_index {
-                info!("Selected index: {}", index);
+                info!("Selected Request index: {}", index);
                 *self.selected_request_index = index;
             }
             if ui.button("Add").clicked() {
@@ -73,8 +72,7 @@ fn create_clickable_row(ui: &mut egui::Ui, value_entry: String, row_height: f32)
 
     // Draw background if hovered
     if is_hovered {
-        ui.painter()
-            .rect_filled(rect, 2.0, egui::Color32::from_gray(220));
+        ui.painter().rect_filled(rect, 2.0, HIGHLIGHT_COLOUR);
     }
 
     let text_color = ui.style().visuals.text_color();
@@ -96,11 +94,8 @@ fn create_clickable_row(ui: &mut egui::Ui, value_entry: String, row_height: f32)
 
     // Draw border
     if is_hovered {
-        ui.painter().rect_stroke(
-            rect,
-            2.0,
-            egui::Stroke::new(1.0, egui::Color32::from_gray(180)),
-        );
+        ui.painter()
+            .rect_stroke(rect, 2.0, egui::Stroke::new(1.0, BORDER_COLOUR));
     }
 
     is_clicked
