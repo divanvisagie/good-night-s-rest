@@ -4,10 +4,17 @@ use eframe::epaint::FontId;
 use log::{error, info};
 
 use crate::collection::Collection;
+
+use crate::components::dropdown_selector::DropdownSelector;
 use crate::components::edit_view::EditView;
 use crate::components::select_list::SelectList;
+
+use crate::views::collection_list::CollectionListView;
+
 use crate::openapi::OpenAPI;
 use crate::requests::{perform_request, Request};
+use crate::views::request_list::RequestListView;
+
 use std::path::PathBuf;
 use std::sync::Mutex;
 use std::sync::{mpsc, Arc};
@@ -85,7 +92,8 @@ impl eframe::App for AppState {
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 if ui.button("Import").clicked() {
-                    let res = rfd::FileDialog::new().set_directory("~")
+                    let res = rfd::FileDialog::new()
+                        .set_directory("~")
                         .add_filter("YAML", &["yaml", "yml"])
                         .pick_file();
                     let col = handle_import_selected_file(res);
@@ -97,69 +105,15 @@ impl eframe::App for AppState {
             });
         });
         egui::SidePanel::left("collection-side-panel").show(ctx, |ui| {
-            ui.heading("Collections");
+            CollectionListView::new(&mut self.collection_list).show(ctx, ui);
             ui.set_min_width(200.0);
-
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                SelectList::new(
-                    &mut self
-                        .collection_list
-                        .iter_mut()
-                        .map(|c| c.name.clone())
-                        .collect(),
-                    |ui, i, item| {
-                        let text = format!("{}", item);
-                        if create_clickable_row(ui, text.clone(), 45.0) {
-                            println!("Clicked row: {}", text);
-                            //save the state of the current collection
-                            self.collection_list[self.selected_collection_index].collection =
-                                self.requests.clone();
-
-                            // select new collection
-                            self.selected_request_index = 0;
-                            self.selected_collection_index = i;
-                            self.requests = self.collection_list[i].collection.clone();
-                        }
-                    },
-                )
-                .show(ui);
-                if ui.button("Add").clicked() {
-                    info!("Add button clicked");
-                    // create a new collection
-                    let collection = vec![Request::new()];
-                    let collection_item = Collection {
-                        name: format!("Collection {}", self.collection_list.len() + 1),
-                        collection: collection.clone(),
-                    };
-                    self.collection_list.push(collection_item);
-
-                    // select it
-                    // self.requests = collection;
-                    // self.selected_request_index = 0;
-                    // self.response = String::new();
-                }
-            });
         });
         egui::SidePanel::left("request-side-panel").show(ctx, |ui| {
-            ui.text_edit_singleline(&mut self.collection_list[self.selected_collection_index].name);
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                let mut current = self.requests[self.selected_request_index].clone();
-                for (index, request) in self.requests.iter_mut().enumerate() {
-                    let text = format!("{} {}", request.method, request.url);
-                    if ui
-                        .selectable_value(&mut current, request.clone(), text)
-                        .clicked()
-                    {
-                        info!("Request selected: {}", request.url);
-                        self.selected_request_index = index;
-                        self.response = String::new();
-                    }
-                }
-                if ui.button("Add").clicked() {
-                    info!("Add button clicked");
-                    self.requests.push(Request::new());
-                }
-            });
+            RequestListView::new(
+                &mut self.collection_list[self.selected_collection_index].name.clone(),
+                &mut self.collection_list[self.selected_collection_index].collection,
+                &mut self.selected_request_index,
+            ).show(ui);
             ui.set_min_width(200.0);
         });
 
@@ -210,10 +164,6 @@ impl Default for AppState {
         let path = String::from("./test_data/test.yaml");
         let openapi = OpenAPI::load_from_yaml_file(path);
         let collection = Collection::from_openapi_format(openapi);
-        // let collection_item = Collection {
-        //     name: "Collection 1".to_string(),
-        //     collection: collection.clone(),
-        // };
         Self {
             response: String::new(),
             requests: collection.collection.clone(),

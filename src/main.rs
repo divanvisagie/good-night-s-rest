@@ -3,6 +3,8 @@ use app::AppState;
 use eframe::egui;
 
 mod components;
+mod views;
+
 mod method;
 mod requests;
 mod app;

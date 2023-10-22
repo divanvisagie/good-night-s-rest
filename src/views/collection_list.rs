@@ -1,0 +1,107 @@
+use eframe::egui::{self, Ui, Sense};
+use eframe::emath::Align2;
+use eframe::epaint::FontId;
+use log::info;
+
+use crate::collection::Collection;
+use crate::components::dropdown_selector::DropdownSelector;
+use crate::components::select_list::SelectList;
+use crate::requests::Request;
+
+pub struct CollectionListView<'a> {
+    collection_list: &'a mut Vec<Collection>,
+    selected_collection_index: usize,
+}
+
+
+/// Collection view
+///
+/// Used as the parent view for all ui related
+/// to manipulating a collection
+impl<'a> CollectionListView<'a> {
+    pub fn new(collection_list: &'a mut Vec<Collection>) -> CollectionListView<'a> {
+        CollectionListView {
+            collection_list,
+            selected_collection_index: 0,
+        }
+    }
+    pub fn show(&mut self, ctx: &egui::Context, ui: &mut Ui) {
+       egui::SidePanel::left("collection-side-panel").show(ctx, |ui| {
+            ui.heading("Collections");
+            ui.set_min_width(200.0);
+
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                SelectList::new(
+                    &mut self
+                        .collection_list
+                        .iter_mut()
+                        .map(|c| c.name.clone())
+                        .collect(),
+                    |ui, i, item| {
+                        let text = format!("{}", item);
+                        if create_clickable_row(ui, text.clone(), 45.0) {
+                            println!("Clicked row: {}", text);
+
+                            // select new collection
+                            self.selected_collection_index = i;
+                        }
+                    },
+                )
+                .show(ui);
+                if ui.button("Add").clicked() {
+                    info!("Add button clicked");
+                    // create a new collection
+                    let collection = vec![Request::new()];
+                    let collection_item = Collection {
+                        name: format!("Collection {}", self.collection_list.len() + 1),
+                        collection: collection.clone(),
+                    };
+                    self.collection_list.push(collection_item);
+
+                }
+            });
+        });
+    }
+}
+fn create_clickable_row(ui: &mut egui::Ui, value_entry: String, row_height: f32) -> bool {
+    let available_width = ui.available_size().x;
+    let (rect, response) =
+        ui.allocate_exact_size(egui::Vec2::new(available_width, row_height), Sense::click());
+    let is_hovered = response.hovered();
+    let is_clicked = response.clicked();
+
+    // Draw background if hovered
+    if is_hovered {
+        ui.painter()
+            .rect_filled(rect, 2.0, egui::Color32::from_gray(220));
+    }
+
+    let text_color = ui.style().visuals.text_color();
+
+    let font_id = FontId::default();
+
+    // Draw row content
+    ui.painter().text(
+        egui::Pos2::new(rect.min.x + 4.0, rect.center().y),
+        Align2::LEFT_CENTER,
+        value_entry,
+        font_id,
+        if is_hovered {
+            egui::Color32::from_rgb(0, 0, 0)
+        } else {
+            text_color
+        },
+    );
+
+    // Draw border
+    if is_hovered {
+        ui.painter().rect_stroke(
+            rect,
+            2.0,
+            egui::Stroke::new(1.0, egui::Color32::from_gray(180)),
+        );
+    }
+
+    is_clicked
+}
+

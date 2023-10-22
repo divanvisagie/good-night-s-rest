@@ -33,6 +33,19 @@ pub struct OpenAPI {
     pub openapi: String,
     pub info: Info,
     pub paths: HashMap<String, HashMap<String, MethodType>>,
+    pub servers: Vec<Servers>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Servers {
+    pub url: String,
+}
+impl Servers {
+    pub fn new() -> Servers {
+        Servers {
+            url: String::new(),
+        }
+    }
 }
 
 impl OpenAPI {
@@ -41,6 +54,7 @@ impl OpenAPI {
             openapi: String::from("3.0.1"),
             info: Info::new(title),
             paths: HashMap::new(),
+            servers: Vec::new(),
         }
     }
 
@@ -73,6 +87,10 @@ mod tests {
             collection.info.title,
             String::from("Swagger Petstore - OpenAPI 3.1")
         );
+
+        assert_eq!(collection.servers.len(), 2);
+        assert_eq!(collection.servers[0].url, String::from("https://petstore3.swagger.io/api/v3"));
+        assert_eq!(collection.servers[1].url, String::from("https://staging.swagger.io/api/v3"));
 
         match collection.paths.get_key_value("/pet") {
             Some((key, value)) => {
