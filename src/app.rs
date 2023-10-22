@@ -110,8 +110,7 @@ impl eframe::App for AppState {
         });
         egui::SidePanel::left("request-side-panel").show(ctx, |ui| {
             RequestListView::new(
-                &mut self.collection_list[self.selected_collection_index].name.clone(),
-                &mut self.collection_list[self.selected_collection_index].collection,
+                &mut self.collection_list[self.selected_collection_index],
                 &mut self.selected_request_index,
             ).show(ui);
             ui.set_min_width(200.0);

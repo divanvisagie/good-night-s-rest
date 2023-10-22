@@ -7,6 +7,7 @@ use eframe::{
 };
 use log::info;
 
+use crate::collection::Collection;
 use crate::{components::dropdown_selector::DropdownSelector, requests::Request};
 
 pub struct RequestListView<'a> {
@@ -17,13 +18,12 @@ pub struct RequestListView<'a> {
 
 impl<'a> RequestListView<'a> {
     pub fn new(
-        collection_name: &'a mut String,
-        requests: &'a mut Vec<Request>,
+        collection: &'a mut Collection,
         selected_index: &'a mut usize,
     ) -> RequestListView<'a> {
         RequestListView {
-            collection_name,
-            requests,
+            collection_name: collection.name.borrow_mut(),
+            requests: collection.collection.borrow_mut(),
             selected_request_index: selected_index,
         }
     }
