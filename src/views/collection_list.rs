@@ -4,7 +4,6 @@ use eframe::epaint::FontId;
 use log::info;
 
 use crate::collection::Collection;
-use crate::components::select_list::SelectList;
 use crate::requests::Request;
 
 pub struct CollectionListView<'a> {
@@ -26,7 +25,9 @@ impl<'a> CollectionListView<'a> {
             selected_collection_index,
         }
     }
-    pub fn show(&mut self, ctx: &egui::Context, _ui: &mut Ui) {
+
+    pub fn show(&mut self, ctx: &egui::Context, _ui: &mut Ui) -> bool {
+        let mut clicked = false;
         egui::SidePanel::left("collection-side-panel").show(ctx, |ui| {
             ui.heading("Collections");
             ui.set_min_width(200.0);
@@ -41,6 +42,7 @@ impl<'a> CollectionListView<'a> {
                     }
 
                     if let Some(index) = selected_index {
+                        clicked = true;
                         info!("Selected Collection index: {}", index);
                         *self.selected_collection_index = index;
                     }
@@ -52,12 +54,13 @@ impl<'a> CollectionListView<'a> {
                     let collection = vec![Request::new()];
                     let collection_item = Collection {
                         name: format!("Collection {}", self.collection_list.len() + 1),
-                        collection: collection.clone(),
+                        requests: collection.clone(),
                     };
                     self.collection_list.push(collection_item);
                 }
             });
         });
+        clicked
     }
 }
 fn create_clickable_row(ui: &mut egui::Ui, value_entry: String, row_height: f32) -> bool {

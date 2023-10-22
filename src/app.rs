@@ -8,7 +8,7 @@ use crate::components::edit_view::EditView;
 use crate::views::collection_list::CollectionListView;
 
 use crate::openapi::OpenAPI;
-use crate::requests::{perform_request, Request};
+use crate::requests::perform_request;
 use crate::views::request_list::RequestListView;
 
 use std::path::PathBuf;
@@ -18,7 +18,6 @@ use std::sync::{mpsc, Arc};
 pub struct AppState {
     selected_request_index: usize,
     selected_collection_index: usize,
-    requests: Vec<Request>,
     collection_list: Vec<Collection>,
     response: String,
     tx: mpsc::Sender<String>,
@@ -60,11 +59,13 @@ impl eframe::App for AppState {
         });
         egui::SidePanel::left("collection-side-panel").show(ctx, |ui| {
             ui.set_min_width(200.0);
-            CollectionListView::new(
+            if CollectionListView::new(
                 &mut self.collection_list,
                 &mut self.selected_collection_index,
             )
-            .show(ctx, ui);
+            .show(ctx, ui) {
+                self.selected_request_index = 0;
+            }
         });
         egui::SidePanel::left("request-side-panel").show(ctx, |ui| {
             ui.set_min_width(200.0);
@@ -77,7 +78,8 @@ impl eframe::App for AppState {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             EditView::new(
-                &mut self.requests[self.selected_request_index],
+                &mut self.collection_list[self.selected_collection_index].requests
+                    [self.selected_request_index],
                 self.response.clone(),
             )
             .show(ui);
@@ -86,7 +88,9 @@ impl eframe::App for AppState {
                 info!("Send button clicked");
                 let tx = self.tx.clone();
 
-                let req = self.requests[self.selected_request_index].clone();
+                let req = self.collection_list[self.selected_collection_index].requests
+                    [self.selected_request_index]
+                    .clone();
                 tokio::spawn(async move {
                     // Your async or long-running code here
                     // perform_request(url, method, body)
@@ -124,7 +128,6 @@ impl Default for AppState {
         let collection = Collection::from_openapi_format(openapi);
         Self {
             response: String::new(),
-            requests: collection.collection.clone(),
             collection_list: vec![collection],
             selected_request_index: 0,
             selected_collection_index: 0,

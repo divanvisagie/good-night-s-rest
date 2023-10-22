@@ -14,8 +14,7 @@ const HIGHLIGHT_COLOUR: egui::Color32 = egui::Color32::from_gray(220);
 const BORDER_COLOUR: egui::Color32 = egui::Color32::from_gray(180);
 
 pub struct RequestListView<'a> {
-    pub collection_name: &'a mut String,
-    pub requests: &'a mut Vec<Request>,
+    pub collection: &'a mut Collection,
     pub selected_request_index: &'a mut usize,
 }
 
@@ -25,17 +24,16 @@ impl<'a> RequestListView<'a> {
         selected_index: &'a mut usize,
     ) -> RequestListView<'a> {
         RequestListView {
-            collection_name: collection.name.borrow_mut(),
-            requests: collection.collection.borrow_mut(),
+            collection,
             selected_request_index: selected_index,
         }
     }
 
     pub fn show(&mut self, ui: &mut Ui) {
-        ui.text_edit_singleline(self.collection_name);
+        ui.text_edit_singleline(&mut self.collection.name);
 
         DropdownSelector::new(
-            self.requests
+            self.collection.requests
                 .iter()
                 .map(|r| format!("{} {}", r.method, r.url))
                 .collect(),
@@ -44,7 +42,7 @@ impl<'a> RequestListView<'a> {
 
         egui::ScrollArea::vertical().show(ui, |ui| {
             let mut selected_index: Option<usize> = None;
-            for (index, request) in self.requests.iter_mut().enumerate() {
+            for (index, request) in self.collection.requests.iter_mut().enumerate() {
                 let text = format!("{} {}", request.method, request.url);
                 if create_clickable_row(ui, text.clone(), 45.0) {
                     info!("Clicked Reqeust in row: {}", text);
@@ -57,7 +55,7 @@ impl<'a> RequestListView<'a> {
             }
             if ui.button("Add").clicked() {
                 info!("Add button clicked");
-                self.requests.push(Request::new());
+                self.collection.requests.push(Request::new());
             }
         });
     }

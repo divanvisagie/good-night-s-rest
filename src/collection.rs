@@ -1,21 +1,16 @@
-use std::collections::HashMap;
-
-use serde::{Serialize, Deserialize};
-
 use crate::{requests::Request, method::Method};
 use crate::openapi::OpenAPI;
 
 pub struct Collection {
     pub name: String,
-    pub collection: Vec<Request>,
+    pub requests: Vec<Request>,
 }
-
 
 impl Collection {
     pub fn new(name: String, collection: Vec<Request>) -> Collection {
         Collection {
             name,
-            collection,
+            requests: collection,
         }
     }
 
@@ -26,7 +21,7 @@ impl Collection {
                 let mut request = Request::new();
                 request.url = path.clone();
                 request.method = Method::from_string(method_name.clone());
-                collection.collection.push(request);
+                collection.requests.push(request);
             }
         }
         collection
@@ -43,8 +38,6 @@ mod tests {
         let path = String::from("./test_data/test.yaml");
         let openapi = OpenAPI::load_from_yaml_file(path);
         let collection = Collection::from_openapi_format(openapi);
-        assert_eq!(collection.collection.len(), 19);
-        // let first_collection_item = &collection.collection[0];
-        // assert_eq!(first_collection_item.url, "/api/v1/cluster");
+        assert_eq!(collection.requests.len(), 19);
     }
 }
