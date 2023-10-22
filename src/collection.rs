@@ -4,6 +4,7 @@ use crate::openapi::OpenAPI;
 pub struct Collection {
     pub name: String,
     pub requests: Vec<Request>,
+    pub servers: Vec<String>,
 }
 
 impl Collection {
@@ -11,6 +12,7 @@ impl Collection {
         Collection {
             name,
             requests: collection,
+            servers: Vec::new(),
         }
     }
 
@@ -24,6 +26,10 @@ impl Collection {
                 collection.requests.push(request);
             }
         }
+        for server in openapi.servers.iter() {
+            collection.servers.push(server.url.clone());
+        }
+        
         collection
     }
 }

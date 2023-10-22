@@ -16,6 +16,7 @@ const BORDER_COLOUR: egui::Color32 = egui::Color32::from_gray(180);
 pub struct RequestListView<'a> {
     pub collection: &'a mut Collection,
     pub selected_request_index: &'a mut usize,
+    selected_server_index: usize,
 }
 
 impl<'a> RequestListView<'a> {
@@ -26,6 +27,7 @@ impl<'a> RequestListView<'a> {
         RequestListView {
             collection,
             selected_request_index: selected_index,
+            selected_server_index: 0,
         }
     }
 
@@ -33,12 +35,12 @@ impl<'a> RequestListView<'a> {
         ui.text_edit_singleline(&mut self.collection.name);
 
         DropdownSelector::new(
-            self.collection.requests
+            self.collection.servers
                 .iter()
-                .map(|r| format!("{} {}", r.method, r.url))
+                .map(|r| format!("{}", r))
                 .collect(),
-            &mut self.selected_request_index,
-        );
+            &mut self.selected_server_index,
+        ).show(ui);
 
         egui::ScrollArea::vertical().show(ui, |ui| {
             let mut selected_index: Option<usize> = None;

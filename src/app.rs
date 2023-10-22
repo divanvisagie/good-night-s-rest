@@ -91,6 +91,7 @@ impl eframe::App for AppState {
                 let req = self.collection_list[self.selected_collection_index].requests
                     [self.selected_request_index]
                     .clone();
+
                 tokio::spawn(async move {
                     // Your async or long-running code here
                     // perform_request(url, method, body)

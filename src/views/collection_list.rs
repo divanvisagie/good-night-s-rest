@@ -55,6 +55,7 @@ impl<'a> CollectionListView<'a> {
                     let collection_item = Collection {
                         name: format!("Collection {}", self.collection_list.len() + 1),
                         requests: collection.clone(),
+                        servers: vec![],
                     };
                     self.collection_list.push(collection_item);
                 }
