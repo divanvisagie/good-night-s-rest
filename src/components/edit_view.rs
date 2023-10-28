@@ -9,14 +9,12 @@ use super::{key_value_entry::KeyValueEntry, multiline_text::MultilineTextInput, 
 
 pub struct EditView<'a> {
     request: &'a mut Request,
-    response: String,
 }
 
 impl<'a> EditView<'a> {
-    pub fn new(request: &'a mut Request, response: String) -> EditView<'a> {
+    pub fn new(request: &'a mut Request) -> EditView<'a> {
         EditView {
             request,
-            response,
         }
     }
 
@@ -37,17 +35,6 @@ impl<'a> EditView<'a> {
             KeyValueEntry::new("QueryParams", &mut self.request.query_params).show(ui);
 
             MultilineTextInput::new("body", &mut self.request.body).show(ui);
-
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.add(
-                    egui::TextEdit::multiline(&mut self.response.clone())
-                        .font(egui::TextStyle::Monospace) // for cursor height
-                        .code_editor()
-                        .desired_rows(10)
-                        .lock_focus(true)
-                        .desired_width(f32::INFINITY),
-                );
-            });
 
         });
     }

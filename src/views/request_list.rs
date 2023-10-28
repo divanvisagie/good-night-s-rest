@@ -1,5 +1,3 @@
-use std::borrow::BorrowMut;
-
 use eframe::{
     egui::{self, Sense, Ui},
     emath::Align2,
@@ -8,15 +6,15 @@ use eframe::{
 use log::info;
 
 use crate::collection::Collection;
-use crate::{components::dropdown_selector::DropdownSelector, requests::Request};
+use crate::requests::Request;
 
 const HIGHLIGHT_COLOUR: egui::Color32 = egui::Color32::from_gray(220);
 const BORDER_COLOUR: egui::Color32 = egui::Color32::from_gray(180);
+const ROW_HEIGHT: f32 = 45.0;
 
 pub struct RequestListView<'a> {
     pub collection: &'a mut Collection,
     pub selected_request_index: &'a mut usize,
-    selected_server_index: usize,
 }
 
 impl<'a> RequestListView<'a> {
@@ -27,26 +25,16 @@ impl<'a> RequestListView<'a> {
         RequestListView {
             collection,
             selected_request_index: selected_index,
-            selected_server_index: 0,
         }
     }
 
     pub fn show(&mut self, ui: &mut Ui) {
-        ui.text_edit_singleline(&mut self.collection.name);
-
-        DropdownSelector::new(
-            self.collection.servers
-                .iter()
-                .map(|r| format!("{}", r))
-                .collect(),
-            &mut self.selected_server_index,
-        ).show(ui);
-
+        
         egui::ScrollArea::vertical().show(ui, |ui| {
             let mut selected_index: Option<usize> = None;
             for (index, request) in self.collection.requests.iter_mut().enumerate() {
                 let text = format!("{} {}", request.method, request.url);
-                if create_clickable_row(ui, text.clone(), 45.0) {
+                if create_clickable_row(ui, text.clone(), ROW_HEIGHT) {
                     info!("Clicked Reqeust in row: {}", text);
                     selected_index = Some(index);
                 }

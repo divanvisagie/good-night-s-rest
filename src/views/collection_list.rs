@@ -9,6 +9,8 @@ use crate::requests::Request;
 pub struct CollectionListView<'a> {
     collection_list: &'a mut Vec<Collection>,
     selected_collection_index: &'a mut usize,
+    selected_request_index: &'a mut usize,
+    selected_server_index: &'a mut usize
 }
 
 /// Collection view
@@ -19,49 +21,49 @@ impl<'a> CollectionListView<'a> {
     pub fn new(
         collection_list: &'a mut Vec<Collection>,
         selected_collection_index: &'a mut usize,
+        selected_request_index: &'a mut usize,
+        selected_server_index: &'a mut usize
     ) -> CollectionListView<'a> {
         CollectionListView {
             collection_list,
             selected_collection_index,
+            selected_request_index,
+            selected_server_index
         }
     }
 
-    pub fn show(&mut self, ctx: &egui::Context, _ui: &mut Ui) -> bool {
-        let mut clicked = false;
-        egui::SidePanel::left("collection-side-panel").show(ctx, |ui| {
-            ui.heading("Collections");
-            ui.set_min_width(200.0);
+    pub fn show(&mut self, ui: &mut Ui) {
+        ui.heading("Collections");
 
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                let mut selected_index: Option<usize> = None;
-                for (index, request) in self.collection_list.iter_mut().enumerate() {
-                    let text = format!("{}", request.name);
-                    if create_clickable_row(ui, text.clone(), 45.0) {
-                        info!("Clicked Reqeust in row: {}", text);
-                        selected_index = Some(index);
-                    }
-
-                    if let Some(index) = selected_index {
-                        clicked = true;
-                        info!("Selected Collection index: {}", index);
-                        *self.selected_collection_index = index;
-                    }
+        egui::ScrollArea::vertical().show(ui, |ui| {
+            let mut selected_index: Option<usize> = None;
+            for (index, request) in self.collection_list.iter_mut().enumerate() {
+                let text = format!("{}", request.name);
+                if create_clickable_row(ui, text.clone(), 45.0) {
+                    info!("Clicked Reqeust in row: {}", text);
+                    selected_index = Some(index);
                 }
 
-                if ui.button("Add").clicked() {
-                    info!("Add button clicked");
-                    // create a new collection
-                    let collection = vec![Request::new()];
-                    let collection_item = Collection {
-                        name: format!("Collection {}", self.collection_list.len() + 1),
-                        requests: collection.clone(),
-                        servers: vec![],
-                    };
-                    self.collection_list.push(collection_item);
+                if let Some(index) = selected_index {
+                    info!("Selected Collection index: {}", index);
+                    *self.selected_server_index = 0;
+                    *self.selected_request_index = 0;
+                    *self.selected_collection_index = index;
                 }
-            });
+            }
+
+            if ui.button("Add").clicked() {
+                info!("Add button clicked");
+                // create a new collection
+                let collection = vec![Request::new()];
+                let collection_item = Collection {
+                    name: format!("Collection {}", self.collection_list.len() + 1),
+                    requests: collection.clone(),
+                    servers: vec!["https://httpbin.org".to_string()],
+                };
+                self.collection_list.push(collection_item);
+            }
         });
-        clicked
     }
 }
 fn create_clickable_row(ui: &mut egui::Ui, value_entry: String, row_height: f32) -> bool {

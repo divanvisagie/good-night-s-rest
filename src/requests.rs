@@ -17,7 +17,7 @@ pub struct Request {
 impl Request {
     pub fn new() -> Request {
         Request {
-            url: "https://httpbin.org/get".to_string(),
+            url: "/get".to_string(),
             body: "".to_string(),
             method: Method::GET,
             headers: vec![],
