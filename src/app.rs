@@ -112,12 +112,12 @@ impl eframe::App for AppState {
                     // Define window's position and size based on the CentralPanel's screen rectangle
                     // Adjust these values as needed
                     let width = screen_rect.width();
-                    let window_pos =  screen_rect.min + Vec2::new(0.0, 0.0);
                     let window_size: Vec2 = Vec2::new(width, 300.0);
                                                                 //
                     Window::new("Request")
-                        .fixed_pos(window_pos)
                         .fixed_size(window_size)
+                        .drag_bounds(ui.max_rect())
+                        .collapsible(false)
                         .show(ctx, |ui| {
                             ui.text_edit_singleline(
                                 &mut self.collection_list[self.selected_collection_index].servers
@@ -133,9 +133,12 @@ impl eframe::App for AppState {
                                 info!("Send button clicked");
                                 let tx = self.tx.clone();
 
-                                let req = self.collection_list[self.selected_collection_index]
+                                let mut req = self.collection_list[self.selected_collection_index]
                                     .requests[self.selected_request_index]
                                     .clone();
+                                
+                                req.url = format!("{}{}", self.collection_list[self.selected_collection_index].servers[self.selected_server_index], req.url);
+                                
 
                                 tokio::spawn(async move {
                                     // Your async or long-running code here
@@ -157,7 +160,8 @@ impl eframe::App for AppState {
                     let response_window_pos = screen_rect.min + Vec2::new(0.0, 305.0);
 
                     Window::new("Response")
-                        .fixed_pos(response_window_pos)
+                        .default_pos(response_window_pos)
+                        .drag_bounds(ui.max_rect())
                         .fixed_size(window_size)
                         .show(ctx, |ui| {
                             ui.text_edit_multiline(&mut self.response);
